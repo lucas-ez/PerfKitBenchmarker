@@ -140,7 +140,7 @@ class BaseVirtualMachine(resource.BaseResource):
   def DeleteScratchDisks(self):
     """Delete a VM's scratch disks."""
     for scratch_disk in self.scratch_disks:
-      if scratch_disk.disk_type != disk.LOCAL:
+      if not disk.DiskTypeIsLocal(scratch_disk.disk_type):
         scratch_disk.Delete()
 
   def GetScratchDir(self, disk_num=0):

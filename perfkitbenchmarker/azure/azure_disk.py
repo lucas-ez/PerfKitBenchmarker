@@ -44,7 +44,8 @@ flags.DEFINE_enum(
 FLAGS = flags.FLAGS
 
 DRIVE_START_LETTER = 'c'
-DISK_TYPE = {disk.STANDARD: None, disk.REMOTE_SSD: None}
+DISK_TYPE = {disk.BUILDING_REPLICATED_HDD: None,
+             disk.BUILDING_REPLICATED_SSD: None}
 
 
 class AzureDisk(disk.BaseDisk):
@@ -64,7 +65,7 @@ class AzureDisk(disk.BaseDisk):
     """Creates the disk."""
     assert self.disk_type in DISK_TYPE, self.disk_type
 
-    if self.disk_type == disk.REMOTE_SSD:
+    if self.disk_type == disk.BUILDING_REPLICATED_SSD:
       assert FLAGS.azure_storage_type == azure_network.PLRS
     else:
       assert FLAGS.azure_storage_type != azure_network.PLRS
@@ -146,7 +147,7 @@ class AzureDisk(disk.BaseDisk):
 
   def GetDevicePath(self):
     """Returns the path to the device inside the VM."""
-    if self.disk_type == disk.LOCAL:
+    if disk.DiskTypeIsLocal(self.disk_type):
       return '/dev/sdb'
     else:
       return '/dev/sd%s' % chr(ord(DRIVE_START_LETTER) + self.lun)

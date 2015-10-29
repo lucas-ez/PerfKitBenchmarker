@@ -53,7 +53,7 @@ def GetConfig(user_config):
   config = configs.LoadConfig(BENCHMARK_CONFIG, user_config, BENCHMARK_NAME)
 
   if (FLAGS.aerospike_storage_type == aerospike_server.DISK and
-      FLAGS.scratch_disk_type != disk.LOCAL):
+      not disk.DiskTypeIsLocal(FLAGS.disk_type)):
     config['vm_groups']['default']['disk_count'] = 1
 
   config['vm_groups']['default']['vm_count'] = (FLAGS.ycsb_client_vms +
@@ -128,8 +128,10 @@ def Run(benchmark_spec):
 
   metadata = {'ycsb_client_vms': FLAGS.ycsb_client_vms,
               'num_vms': len(aerospike_vms),
-              'scratch_disk_type': FLAGS.scratch_disk_type,
-              'scratch_disk_size': FLAGS.scratch_disk_size}
+              'scratch_disk_type': FLAGS.disk_type,
+              'scratch_disk_size': FLAGS.disk_size,
+              'disk_type': FLAGS.disk_type,
+              'disk_size': FLAGS.disk_size}
 
   samples = list(executor.LoadAndRun(loaders))
 

@@ -285,7 +285,7 @@ class AwsVirtualMachine(virtual_machine.BaseVirtualMachine):
     disks = []
     for _ in range(disk_spec.num_striped_disks):
       data_disk = aws_disk.AwsDisk(disk_spec, self.zone)
-      if disk_spec.disk_type == disk.LOCAL:
+      if disk.DiskTypeIsLocal(disk_spec.disk_type):
         data_disk.device_letter = chr(ord(DRIVE_START_LETTER) +
                                       self.local_disk_counter)
         # Local disk numbers start at 1 (0 is the system disk).

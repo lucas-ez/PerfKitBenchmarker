@@ -50,7 +50,7 @@ class AzureScratchDiskIntegrationTest(unittest.TestCase):
                 },
                 'disk_spec': {
                     'Azure': {
-                        'disk_type': 'remote_ssd',
+                        'disk_type': 'building_replicated_ssd',
                         'disk_size': 10,  # disk size must be between
                                           # 10 and 1024 GB.
                         'mount_point': MOUNT_POINT
@@ -73,7 +73,7 @@ class AzureScratchDiskIntegrationTest(unittest.TestCase):
                 },
                 'disk_spec': {
                     'Azure': {
-                        'disk_type': 'local',
+                        'disk_type': 'ephemeral_ssd',
                         'mount_point': MOUNT_POINT
                     }
                 }

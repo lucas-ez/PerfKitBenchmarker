@@ -47,7 +47,7 @@ class GcpScratchDiskIntegrationTest(unittest.TestCase):
                 },
                 'disk_spec': {
                     'GCP': {
-                        'disk_type': 'standard',
+                        'disk_type': 'building_replicated_hdd',
                         'disk_size': 2,
                         'mount_point': MOUNT_POINT
                     }
@@ -69,7 +69,7 @@ class GcpScratchDiskIntegrationTest(unittest.TestCase):
                 },
                 'disk_spec': {
                     'GCP': {
-                        'disk_type': 'remote_ssd',
+                        'disk_type': 'building_replicated_ssd',
                         'disk_size': 2,
                         'mount_point': MOUNT_POINT
                     }
@@ -92,7 +92,7 @@ class GcpScratchDiskIntegrationTest(unittest.TestCase):
                 },
                 'disk_spec': {
                     'GCP': {
-                        'disk_type': 'local',
+                        'disk_type': 'ephemeral_ssd',
                         'mount_point': MOUNT_POINT
                     }
                 }

@@ -227,8 +227,10 @@ def Run(benchmark_spec):
   metadata = {'ycsb_client_vms': len(loaders),
               'hbase_cluster_size': len(by_role['hbase_vms']),
               'hbase_zookeeper_nodes': FLAGS.hbase_zookeeper_nodes,
-              'scratch_disk_type': FLAGS.scratch_disk_type,
-              'scratch_disk_size': FLAGS.scratch_disk_size}
+              'scratch_disk_type': FLAGS.disk_type,
+              'scratch_disk_size': FLAGS.disk_size,
+              'disk_type': FLAGS.disk_type,
+              'disk_size': FLAGS.disk_size}
 
   # By default YCSB uses a BufferedMutator for Puts / Deletes.
   # This leads to incorrect update latencies, since since the call returns

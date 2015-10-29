@@ -18,13 +18,99 @@ Disks can be created, deleted, attached to VMs, and detached from VMs.
 """
 
 import abc
+import logging
 
+from perfkitbenchmarker import flags
 from perfkitbenchmarker import resource
 
+FLAGS = flags.FLAGS
+
+# These are the new disk type names
+EPHEMERAL_HDD = 'ephemeral_hdd'
+EPHEMERAL_SSD = 'ephemeral_ssd'
+BUILDING_REPLICATED_HDD = 'building_replicated_hdd'
+BUILDING_REPLICATED_SSD = 'building_replicated_ssd'
+
+
+def DiskTypeIsLocal(disk_type):
+  return disk_type in {EPHEMERAL_HDD, EPHEMERAL_SSD}
+
+
+NEW_DISK_TYPE_NAMES = {
+    EPHEMERAL_HDD,
+    EPHEMERAL_SSD,
+    BUILDING_REPLICATED_HDD,
+    BUILDING_REPLICATED_SSD}
+
+# These are the (deprecated) old disk type names
 STANDARD = 'standard'
 REMOTE_SSD = 'remote_ssd'
 PIOPS = 'piops'  # Provisioned IOPS (SSD) in AWS
 LOCAL = 'local'
+
+# Map old disk type names to new disk type names
+DISK_TYPES_MAPPING = {
+    STANDARD: BUILDING_REPLICATED_HDD,
+    REMOTE_SSD: BUILDING_REPLICATED_SSD,
+    PIOPS: BUILDING_REPLICATED_SSD,
+    LOCAL: EPHEMERAL_SSD
+}
+
+
+def WarnAndTranslateDiskTypes(name):
+  """Translate old disk types to new disk types, printing warnings if needed.
+
+  Args:
+    name: a string specifying a disk type, either new or old.
+
+  Returns:
+    The disk type to use, in the new disk type taxonomy.
+
+  Raises:
+    ValueError, if name is not a disk type name.
+  """
+
+  if name in NEW_DISK_TYPE_NAMES:
+    return name
+  elif name in DISK_TYPES_MAPPING:
+    new_name = DISK_TYPES_MAPPING[name]
+    logging.warning('Disk type name %s is deprecated and will be removed. '
+                    'Translating to %s for now.', name, new_name)
+    return new_name
+  else:
+    raise ValueError('%s is not a disk type name', name)
+
+
+def WarnAndCopyFlag(old_name, new_name, translator=None):
+  """Copy a value from an old flag to a new one, warning the user.
+  """
+
+  if FLAGS[old_name].present:
+    logging.warning('Flag --%s is deprecated and will be removed. Please '
+                    'switch to --%s.' % (old_name, new_name))
+    if not FLAGS[new_name].present:
+      if translator:
+        FLAGS[new_name].value = translator(FLAGS[old_name].value)
+      else:
+        FLAGS[new_name].value = FLAGS[old_name].value
+
+      # Mark the new flag as present so we'll print it out in our list
+      # of flag values.
+      FLAGS[new_name].present = True
+    # Remove the old flag so we can't accidentally use it.
+    del FLAGS.FlagDict()[old_name]
+
+
+def WarnAndTranslateDiskFlags():
+  """Translate old disk-related flags to new disk-related flags.
+  """
+
+  WarnAndCopyFlag('scratch_disk_type', 'disk_type',
+                  translator=WarnAndTranslateDiskTypes)
+
+  WarnAndCopyFlag('scratch_disk_iops', 'aws_provisioned_iops')
+
+  WarnAndCopyFlag('scratch_disk_size', 'disk_size')
 
 
 class BaseDiskSpec(object):
@@ -52,8 +138,8 @@ class BaseDiskSpec(object):
 
   def ApplyFlags(self, flags):
     """Applies flags to the DiskSpec."""
-    self.disk_size = flags.scratch_disk_size or self.disk_size
-    self.disk_type = flags.scratch_disk_type or self.disk_type
+    self.disk_size = flags.disk_size or self.disk_size
+    self.disk_type = flags.disk_type or self.disk_type
     self.num_striped_disks = flags.num_striped_disks or self.num_striped_disks
     self.mount_point = flags.scratch_dir or self.mount_point
 

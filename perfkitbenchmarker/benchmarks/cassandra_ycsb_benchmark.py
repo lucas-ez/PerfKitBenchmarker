@@ -172,8 +172,10 @@ def Run(benchmark_spec):
 
   metadata = {'ycsb_client_vms': FLAGS.ycsb_client_vms,
               'num_vms': len(cassandra_vms),
-              'scratch_disk_type': FLAGS.scratch_disk_type,
-              'scratch_disk_size': FLAGS.scratch_disk_size}
+              'scratch_disk_type': FLAGS.disk_type,
+              'scratch_disk_size': FLAGS.disk_size,
+              'disk_type': FLAGS.disk_type,
+              'disk_size': FLAGS.disk_size}
 
   samples = list(executor.LoadAndRun(loaders,
                                      load_kwargs=kwargs,

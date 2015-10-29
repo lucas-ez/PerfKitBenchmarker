@@ -34,9 +34,8 @@ VOLUME_EXISTS_STATUSES = frozenset(['creating', 'available', 'in-use', 'error'])
 VOLUME_DELETED_STATUSES = frozenset(['deleting', 'deleted'])
 VOLUME_KNOWN_STATUSES = VOLUME_EXISTS_STATUSES | VOLUME_DELETED_STATUSES
 DISK_TYPE = {
-    disk.STANDARD: 'standard',
-    disk.REMOTE_SSD: 'gp2',
-    disk.PIOPS: 'io1'
+    disk.BUILDING_REPLICATED_HDD: 'standard',
+    disk.BUILDING_REPLICATED_SSD: 'gp2'
 }
 
 
@@ -56,7 +55,7 @@ class AwsDiskSpec(disk.BaseDiskSpec):
   def ApplyFlags(self, flags):
     """Apply flags to the DiskSpec."""
     super(AwsDiskSpec, self).ApplyFlags(flags)
-    self.iops = flags.scratch_disk_iops or self.iops
+    self.iops = flags.aws_provisioned_iops or self.iops
 
 
 class AwsDisk(disk.BaseDisk):
@@ -76,14 +75,18 @@ class AwsDisk(disk.BaseDisk):
 
   def _Create(self):
     """Creates the disk."""
+    if self.iops is not None:
+      aws_disk_type = 'io1'
+    else:
+      aws_disk_type = DISK_TYPE[self.disk_type]
     create_cmd = util.AWS_PREFIX + [
         'ec2',
         'create-volume',
         '--region=%s' % self.region,
         '--size=%s' % self.disk_size,
         '--availability-zone=%s' % self.zone,
-        '--volume-type=%s' % DISK_TYPE[self.disk_type]]
-    if self.disk_type == 'io1':
+        '--volume-type=%s' % aws_disk_type]
+    if aws_disk_type == 'io1':
       create_cmd.append('--iops=%s' % self.iops)
     stdout, _, _ = vm_util.IssueCommand(create_cmd)
     response = json.loads(stdout)
@@ -161,7 +164,7 @@ class AwsDisk(disk.BaseDisk):
 
   def GetDevicePath(self):
     """Returns the path to the device inside the VM."""
-    if self.disk_type == disk.LOCAL:
+    if disk.DiskTypeIsLocal(self.disk_type):
       return '/dev/xvd%s' % self.device_letter
     else:
       return '/dev/xvdb%s' % self.device_letter

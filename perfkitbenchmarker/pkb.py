@@ -116,8 +116,6 @@ flags.DEFINE_integer('num_vms', 1, 'For benchmarks which can make use of a '
                      'variable number of machines, the number of VMs to use.')
 flags.DEFINE_string('image', None, 'Default image that will be '
                     'linked to the VM')
-flags.DEFINE_integer('scratch_disk_size', None, 'Size, in gb, for all scratch '
-                     'disks.')
 flags.DEFINE_string('run_uri', None, 'Name of the Run. If provided, this '
                     'should be alphanumeric and less than or equal to 10 '
                     'characters in length.')
@@ -140,9 +138,30 @@ flags.DEFINE_string('static_vm_file', None,
 flags.DEFINE_boolean('version', False, 'Display the version and exit.')
 flags.DEFINE_enum(
     'scratch_disk_type', None,
-    [disk.STANDARD, disk.REMOTE_SSD, disk.PIOPS, disk.LOCAL],
-    'Type for all scratch disks. The default is standard')
+    [disk.EPHEMERAL_HDD,
+     disk.EPHEMERAL_SSD,
+     disk.BUILDING_REPLICATED_HDD,
+     disk.BUILDING_REPLICATED_SSD,
+     disk.STANDARD, disk.REMOTE_SSD,
+     disk.PIOPS, disk.LOCAL],
+    'Type for all scratch disks. The default is %s' %
+    disk.BUILDING_REPLICATED_SSD)
+flags.DEFINE_enum(
+    'disk_type', None,
+    [disk.EPHEMERAL_HDD,
+     disk.EPHEMERAL_SSD,
+     disk.BUILDING_REPLICATED_HDD,
+     disk.BUILDING_REPLICATED_SSD,
+     disk.STANDARD, disk.REMOTE_SSD,
+     disk.PIOPS, disk.LOCAL],
+    'Type for all benchmark disks. The default is %s' %
+    disk.BUILDING_REPLICATED_SSD)
+flags.DEFINE_integer('scratch_disk_size', None, 'Size, in gb, for all scratch '
+                     'disks.')
+flags.DEFINE_integer('disk_size', None, 'Size, in gb, for all disks.')
 flags.DEFINE_integer('scratch_disk_iops', None,
+                     'IOPS for Provisioned IOPS (SSD) volumes in AWS.')
+flags.DEFINE_integer('aws_provisioned_iops', None,
                      'IOPS for Provisioned IOPS (SSD) volumes in AWS.')
 flags.DEFINE_integer('num_striped_disks', None,
                      'The number of disks to stripe together to form one '
@@ -508,6 +527,8 @@ def Main(argv=sys.argv):
     logging.error(
         '%s\nUsage: %s ARGS\n%s', e, sys.argv[0], FLAGS)
     sys.exit(1)
+
+  disk.WarnAndTranslateDiskFlags()
 
   SetUpPKB()
 

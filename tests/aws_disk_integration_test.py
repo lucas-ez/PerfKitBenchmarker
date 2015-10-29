@@ -47,7 +47,7 @@ class AwsScratchDiskIntegrationTest(unittest.TestCase):
                 },
                 'disk_spec': {
                     'AWS': {
-                        'disk_type': 'standard',
+                        'disk_type': 'building_replicated_hdd',
                         'disk_size': 2,
                         'mount_point': MOUNT_POINT
                     }
@@ -69,8 +69,31 @@ class AwsScratchDiskIntegrationTest(unittest.TestCase):
                 },
                 'disk_spec': {
                     'AWS': {
-                        'disk_type': 'remote_ssd',
+                        'disk_type': 'building_replicated_ssd',
                         'disk_size': 2,
+                        'mount_point': MOUNT_POINT
+                    }
+                }
+            }
+        }
+    }, MOUNT_POINT)
+
+  def testEBSPIOPS(self):
+    test_util.assertDiskMounts({
+        'vm_groups': {
+            'vm_group_1': {
+                'cloud': 'AWS',
+                'vm_spec': {
+                    'AWS': {
+                        'machine_type': 'm4.large',
+                        'zone': 'us-east-1a'
+                    }
+                },
+                'disk_spec': {
+                    'AWS': {
+                        'disk_type': 'building_replicated_ssd',
+                        'disk_size': 35,  # maximum size/IOPS ratio is 30
+                        'iops': 100,  # minimum value is 100 IOPS
                         'mount_point': MOUNT_POINT
                     }
                 }
@@ -91,7 +114,7 @@ class AwsScratchDiskIntegrationTest(unittest.TestCase):
                 },
                 'disk_spec': {
                     'AWS': {
-                        'disk_type': 'local',
+                        'disk_type': 'ephemeral_ssd',
                         'mount_point': MOUNT_POINT
                     }
                 }

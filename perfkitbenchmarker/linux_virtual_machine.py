@@ -495,7 +495,7 @@ class BaseLinuxMixin(virtual_machine.BaseOsMixin):
 
     self.scratch_disks.append(data_disk)
 
-    if data_disk.disk_type != disk.LOCAL:
+    if not disk.DiskTypeIsLocal(data_disk.disk_type):
       data_disk.Create()
       data_disk.Attach(self)
 

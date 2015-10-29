@@ -187,7 +187,7 @@ class AzureVirtualMachine(virtual_machine.BaseVirtualMachine):
 
     for _ in xrange(disk_spec.num_striped_disks):
       data_disk = azure_disk.AzureDisk(disk_spec, self.name)
-      if disk_spec.disk_type == disk.LOCAL:
+      if disk.DiskTypeIsLocal(disk_spec.disk_type):
         # Local disk numbers start at 1 (0 is the system disk).
         data_disk.disk_number = self.local_disk_counter + 1
         self.local_disk_counter += 1
