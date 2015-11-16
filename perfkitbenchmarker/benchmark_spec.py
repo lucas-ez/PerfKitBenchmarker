@@ -290,10 +290,11 @@ class BenchmarkSpec(object):
                    benchmark_uid=self.uid)
     vm.WaitForBootCompletion()
     vm.OnStartup()
-    if any((spec.disk_type == disk.LOCAL for spec in vm.disk_specs)):
-      vm.SetupLocalDisks()
-    for disk_spec in vm.disk_specs:
-      vm.CreateScratchDisk(disk_spec)
+#LUCAS
+#    if any((spec.disk_type == disk.LOCAL for spec in vm.disk_specs)):
+#      vm.SetupLocalDisks()
+#    for disk_spec in vm.disk_specs:
+#      vm.CreateScratchDisk(disk_spec)
 
     # This must come after Scratch Disk creation to support the
     # Containerized VM case

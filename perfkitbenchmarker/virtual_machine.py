@@ -195,11 +195,13 @@ class BaseVirtualMachine(resource.BaseResource):
       The mounted disk directory.
 
     """
-    if disk_num >= len(self.scratch_disks):
-      raise errors.Error(
-          'GetScratchDir(disk_num=%s) is invalid, max disk_num is %s' % (
-              disk_num, len(self.scratch_disks)))
-    return self.scratch_disks[disk_num].mount_point
+    #LUCAS
+    #if disk_num >= len(self.scratch_disks):
+    #  raise errors.Error(
+    #      'GetScratchDir(disk_num=%s) is invalid, max disk_num is %s' % (
+    #          disk_num, len(self.scratch_disks)))
+    #return self.scratch_disks[disk_num].mount_point
+    return "/tmp"
 
   def GetLocalDisks(self):
     # TODO(ehankland) This method should be removed as soon as raw/unmounted
