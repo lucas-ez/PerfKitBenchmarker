@@ -157,6 +157,8 @@ class OpenStackVirtualMachine(virtual_machine.BaseVirtualMachine):
           self.boot_wait_time = 15
         time.sleep(self.boot_wait_time)
         self.boot_wait_time = 5
+        ping_cmd = ['ping', '-c1', self.ip_address]
+        _ , _ = vm_util.IssueRetryableCommand(ping_cmd)
         resp, _ = self.RemoteCommand('hostname', retries=1)
         if self.bootable_time is None:
             self.bootable_time = time.time()
